@@ -9,6 +9,7 @@ mod hashing_info;
 use hashing_info::HashInfo;
 
 static ZERO_ADDRESS: &[u8] = b"zero address";
+static INVALID_ADDRESS: &[u8] = b"invalid address";
 
 #[multiversx_sc::contract]
 pub trait TesseractContract {
@@ -18,8 +19,29 @@ pub trait TesseractContract {
     }
 
     #[endpoint]
-    fn digest(&self, address: ManagedAddress) {
-        let address_mapper = self.logger(&address);
+    fn digest(
+        &self, 
+        address: ManagedAddress, 
+        uri: ManagedBuffer,
+        omnikey: ManagedAddress
+    ) {
+        let data_mapper = self.logger(&address);
+        require!(!data_mapper.is_empty(), INVALID_ADDRESS);
+
+        let hash = self.generate_hash(uri);
+
+        data_mapper.update(|logger| {
+                logger.omnikey_address = omnikey;
+                logger.hash = hash;
+            }
+        )
+    }
+
+    fn generate_hash(
+        &self, 
+        data: ManagedBuffer
+    ) -> ManagedByteArray<Self::Api, 32> {
+        self.crypto().keccak256(data)
     }
 
 

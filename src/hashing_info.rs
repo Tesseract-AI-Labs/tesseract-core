@@ -3,8 +3,8 @@ multiversx_sc::derive_imports!();
 
 #[derive(NestedEncode, NestedDecode, TopEncode, TopDecode, TypeAbi)]
 pub struct HashInfo<M: ManagedTypeApi> {
-    pub uploader_address: ManagedAddress<M>,
-    pub hash_id: BigInt<M>
+    pub omnikey_address: ManagedAddress<M>,
+    pub hash: ManagedByteArray<M, 32>
 }
 
 impl<M> HashInfo<M>
